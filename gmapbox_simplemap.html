@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Google Maps JavaScript API Example: Simple Map</title>
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAAyy_sg_kvGifscGkzZ2uxzxTGv8pFig_qdcIeIanIjQzecSm0lRRq4s4kzJSNgFaqRoQiY2UvM2DKJA"
+            type="text/javascript"></script>
+    <script type="text/javascript">
+
+    function initialize() {
+      if (GBrowserIsCompatible()) {
+        var maxZoom = 17;
+        var minZoom = 0;
+        var centerLat = 38.9;
+        var centerLon = -77.02;
+        var defaultZoom = 6;
+        var baseTiles = "world-light";
+        var tilesName = "W. Light";
+
+        var map = new GMap2(document.getElementById("map_canvas"));
+
+        // Copyright info
+        var copyright = new GCopyright(1,
+          new GLatLngBounds(new GLatLng(-90,-180),new GLatLng(90,180) ),
+          0, "<a href='http://mapbox.com'><img src='mapbox.png'></a>");
+        var copyrightCollection = new GCopyrightCollection();
+        copyrightCollection.addCopyright(copyright);
+
+        // Fetch tiles
+        CustomTilesUrl=function(a,b){
+          // Y coordinate is flipped in Mapbox, compared to Google
+          a.y = Math.abs(a.y - (Math.pow(2,b) - 1));
+          return "http://a.tile.mapbox.com/1.0.0/" + baseTiles +"/"+b+"/"+a.x+"/"+a.y+".png";
+        }
+
+        var tilelayers = [new GTileLayer(copyrightCollection,minZoom,maxZoom)];
+        tilelayers[0].getTileUrl = CustomTilesUrl;
+
+        // Default options for the new map type.
+        var GMapTypeOptions = new Object();
+        GMapTypeOptions.minResolution = minZoom;
+        GMapTypeOptions.maxResolution = maxZoom;
+        
+        // Create the custom map type and add it to the map.
+        var custommap = new GMapType(tilelayers, new GMercatorProjection(maxZoom + 1), tilesName, GMapTypeOptions);
+        map.setCenter(new GLatLng(centerLat,centerLon), defaultZoom, custommap);
+        map.addMapType(custommap);
+
+        map.setUIToDefault();
+      }
+    }
+
+    </script>
+  </head>
+
+  <body onload="initialize()" onunload="GUnload()">
+    <div id="map_canvas" style="width: 500px; height: 300px"></div>
+  </body>
+</html>

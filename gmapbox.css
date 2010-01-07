@@ -1,0 +1,21 @@
+a img { border:0 }
+img { border:0 }
+
+li { 
+  list-style: none;
+  background-repeat: no-repeat;
+  background-position: 0 .5em;
+  padding: 20px 10px 20px 50px;
+}
+
+li.dc-nightvision {
+  background-image: url(images/dc-nightvision.jpg);
+}
+
+li.world-light {
+  background-image: url(images/world-light.png);
+}
+
+li.afghanistan-winter {
+  background-image: url(images/afghanistan-winter.png);
+}
