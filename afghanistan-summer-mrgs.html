@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  <title>MapBox Afghanistan Winter with Google Maps API</title>
+  
+  <script>
+/**
+ * Google Maps API 2.0
+ * MapBox integration.
+ *
+ * Do not remove the MapBox or OpenStreetMap attribution from this code,
+ * doing so is in violation of the terms of both licenses.
+ */
+
+/**
+ * Factory function for a MapBox layer for use with a
+ * Google Map
+ *
+ * @param {string} layername
+ *  layername in the TMS schema
+ * @param {string} layertitle
+ *  layer will be called in the user interface
+ * @param {number} minZoom
+ *  minimum (farthest out) zoom level, default 0
+ * @param {number} maxZoom
+ *  maximum (closest) zoom level, default 13
+ * @param {boolean} overlay
+ *  whether an overlay or not
+ * @return {GMapType} map
+ *  GMapType object 
+ */
+var GMapBox;
+GMapBox = function(layername, layertitle, minZoom, maxZoom, overlay) {
+  var copyright, copyrightCollection, tilelayers, GMapTypeOptions;
+  if(minZoom === undefined) {
+    minZoom = 0;
+  }
+  if(maxZoom === undefined) {
+    maxZoom = 13;
+  }
+  // Copyright info
+  copyright = new GCopyright(1,
+    new GLatLngBounds(new GLatLng(-90,-180),new GLatLng(90,180) ),
+    0, "<a href='http://mapbox.com/'><img src='http://mapbox-js.s3.amazonaws.com/img/mapbox.png'></a>");
+  copyrightCollection = new GCopyrightCollection();
+  copyrightCollection.addCopyright(copyright);
+  
+  // Function for getTileUrl
+  CustomTilesUrl = function(a,b){
+    // Y coordinate is flipped in Mapbox, compared to Google
+    a.y = Math.abs(a.y - (Math.pow(2,b) - 1));
+    return "http://a.tile.mapbox.com/1.0.0/" + layername + "/" + b + "/" + a.x + "/" + a.y + ".png";
+  }
+
+  // Create the custom map type or overlay and add it to the map.
+  if(overlay == 1) {    
+    var tilelayers = new GTileLayer(copyrightCollection,minZoom,maxZoom);
+    tilelayers.getTileUrl = CustomTilesUrl;
+    tilelayers.isPng = function() { return true;};
+    tilelayers.getOpacity = function() { return 1.0; }
+    return new GTileLayerOverlay(tilelayers);
+    
+  }
+  else {
+    tilelayers = [new GTileLayer(copyrightCollection,minZoom,maxZoom)];
+    tilelayers[0].getTileUrl = CustomTilesUrl;
+    // Default options for the new map type.
+    GMapTypeOptions = {minResolution: minZoom, maxResolution: maxZoom};
+    return new GMapType(tilelayers, new GMercatorProjection(maxZoom + 1), layertitle, GMapTypeOptions);
+  }
+}
+</script>
+
+
+  <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAAyy_sg_kvGifscGkzZ2uxzxTGv8pFig_qdcIeIanIjQzecSm0lRRq4s4kzJSNgFaqRoQiY2UvM2DKJA" type="text/javascript"></script>
+  <link rel=stylesheet href="gmapbox.css" type="text/css" media=screen />  
+</head>
+  <script type="text/javascript">
+    function initialize() {
+      if (GBrowserIsCompatible()) {
+        var map = new GMap2(document.getElementById("map"));
+        map.setCenter(new GLatLng(34,65), 8)
+        
+        // Add custom map type        
+        var custommap = GMapBox('afghanistan-winter', 'Winter', 5, 13);
+        map.addMapType(custommap);
+        map.setMapType(custommap); 
+
+        // Add custom map overlay tiles
+        var customoverlay = GMapBox('afghanistan-mgrs', 'Winter', 7, 12, true, -100);
+        map.addOverlay(customoverlay);
+
+        map.setUIToDefault();
+      }
+      else {
+        alert("The Google Maps API is not compatible with this browser");
+      }
+    }
+    </script>
+
+  <body onload="initialize()" onunload="GUnload()">
+    <div id="map" style="width: 900px; height: 600px"></div>
+  </body>
+</html>
