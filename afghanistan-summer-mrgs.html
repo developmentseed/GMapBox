@@ -2,77 +2,8 @@
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-  <title>MapBox Afghanistan Winter with Google Maps API</title>
-  
-  <script>
-/**
- * Google Maps API 2.0
- * MapBox integration.
- *
- * Do not remove the MapBox or OpenStreetMap attribution from this code,
- * doing so is in violation of the terms of both licenses.
- */
-
-/**
- * Factory function for a MapBox layer for use with a
- * Google Map
- *
- * @param {string} layername
- *  layername in the TMS schema
- * @param {string} layertitle
- *  layer will be called in the user interface
- * @param {number} minZoom
- *  minimum (farthest out) zoom level, default 0
- * @param {number} maxZoom
- *  maximum (closest) zoom level, default 13
- * @param {boolean} overlay
- *  whether an overlay or not
- * @return {GMapType} map
- *  GMapType object 
- */
-var GMapBox;
-GMapBox = function(layername, layertitle, minZoom, maxZoom, overlay) {
-  var copyright, copyrightCollection, tilelayers, GMapTypeOptions;
-  if(minZoom === undefined) {
-    minZoom = 0;
-  }
-  if(maxZoom === undefined) {
-    maxZoom = 13;
-  }
-  // Copyright info
-  copyright = new GCopyright(1,
-    new GLatLngBounds(new GLatLng(-90,-180),new GLatLng(90,180) ),
-    0, "<a href='http://mapbox.com/'><img src='http://mapbox-js.s3.amazonaws.com/img/mapbox.png'></a>");
-  copyrightCollection = new GCopyrightCollection();
-  copyrightCollection.addCopyright(copyright);
-  
-  // Function for getTileUrl
-  CustomTilesUrl = function(a,b){
-    // Y coordinate is flipped in Mapbox, compared to Google
-    a.y = Math.abs(a.y - (Math.pow(2,b) - 1));
-    return "http://a.tile.mapbox.com/1.0.0/" + layername + "/" + b + "/" + a.x + "/" + a.y + ".png";
-  }
-
-  // Create the custom map type or overlay and add it to the map.
-  if(overlay == 1) {    
-    var tilelayers = new GTileLayer(copyrightCollection,minZoom,maxZoom);
-    tilelayers.getTileUrl = CustomTilesUrl;
-    tilelayers.isPng = function() { return true;};
-    tilelayers.getOpacity = function() { return 1.0; }
-    return new GTileLayerOverlay(tilelayers);
-    
-  }
-  else {
-    tilelayers = [new GTileLayer(copyrightCollection,minZoom,maxZoom)];
-    tilelayers[0].getTileUrl = CustomTilesUrl;
-    // Default options for the new map type.
-    GMapTypeOptions = {minResolution: minZoom, maxResolution: maxZoom};
-    return new GMapType(tilelayers, new GMercatorProjection(maxZoom + 1), layertitle, GMapTypeOptions);
-  }
-}
-</script>
-
-
+  <title>MapBox Afghanistan Summer + MRGS with Google Maps API</title>
+  <script src="http://js.mapbox.com/g/2/mapbox.js" type="text/javascript"></script>
   <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAAyy_sg_kvGifscGkzZ2uxzxTGv8pFig_qdcIeIanIjQzecSm0lRRq4s4kzJSNgFaqRoQiY2UvM2DKJA" type="text/javascript"></script>
   <link rel=stylesheet href="gmapbox.css" type="text/css" media=screen />  
 </head>
@@ -81,14 +12,16 @@ GMapBox = function(layername, layertitle, minZoom, maxZoom, overlay) {
       if (GBrowserIsCompatible()) {
         var map = new GMap2(document.getElementById("map"));
         map.setCenter(new GLatLng(34,65), 8)
-        
-        // Add custom map type        
-        var custommap = GMapBox('afghanistan-winter', 'Winter', 5, 13);
+
+        // Add custom map type     
+        var options = {minZoom: 5, maxZoom: 13};   
+        var custommap = GMapBox('afghanistan-winter', 'Winter', options);
         map.addMapType(custommap);
         map.setMapType(custommap); 
 
         // Add custom map overlay tiles
-        var customoverlay = GMapBox('afghanistan-mgrs', 'Winter', 7, 12, true, -100);
+        var options = {minZoom: 7, maxZoom: 12, overlay: true, png: true, opacity: 1.0};   
+        var customoverlay = GMapBox('afghanistan-mgrs', 'Winter', options);
         map.addOverlay(customoverlay);
 
         map.setUIToDefault();

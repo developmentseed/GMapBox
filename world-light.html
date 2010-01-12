@@ -12,9 +12,10 @@
       if (GBrowserIsCompatible()) {
         var map = new GMap2(document.getElementById("map"));
         map.setCenter(new GLatLng(0,0), 2)
-        custommap = GMapBox('world-light', 'W. Light', 0, 12);
+        var options = {minZoom: 0, maxZoom: 12};
+        custommap = GMapBox('world-light', 'W. Light', options);
         map.addMapType(custommap);
-        map.setMapType(custommap); 
+        map.setMapType(custommap);
         map.setUIToDefault();
       }
       else {
