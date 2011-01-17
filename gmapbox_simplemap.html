@@ -4,56 +4,56 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <title>Google Maps JavaScript API Example: Simple Map</title>
-    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAAyy_sg_kvGifscGkzZ2uxzxTGv8pFig_qdcIeIanIjQzecSm0lRRq4s4kzJSNgFaqRoQiY2UvM2DKJA"
+    <script src="http://maps.google.com/maps/api/js?v=3.3&sensor=false"
             type="text/javascript"></script>
     <script type="text/javascript">
-
     function initialize() {
-      if (GBrowserIsCompatible()) {
-        var maxZoom = 17;
-        var minZoom = 0;
-        var centerLat = 38.9;
-        var centerLon = -77.02;
-        var defaultZoom = 6;
-        var baseTiles = "world-light";
-        var tilesName = "W. Light";
-
-        var map = new GMap2(document.getElementById("map_canvas"));
-
         // Copyright info
-        var copyright = new GCopyright(1,
-          new GLatLngBounds(new GLatLng(-90,-180),new GLatLng(90,180) ),
-          0, "<a href='http://mapbox.com'><img src='mapbox.png'></a>");
-        var copyrightCollection = new GCopyrightCollection();
-        copyrightCollection.addCopyright(copyright);
+        var mbLogo = function(map) {
+            var logoDiv = document.createElement('DIV');
+            logoDiv.innerHTML = '<a href="http://mapbox.com">'
+                + '<img src="mapbox.png"></a>';
+            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT]
+                .push(logoDiv);
+        };
 
-        // Fetch tiles
-        CustomTilesUrl=function(a,b){
-          // Y coordinate is flipped in Mapbox, compared to Google
-          a.y = Math.abs(a.y - (Math.pow(2,b) - 1));
-          return "http://a.tile.mapbox.com/1.0.0/" + baseTiles +"/"+b+"/"+a.x+"/"+a.y+".png";
-        }
+        var mbLayer = function(options) {
+            return new google.maps.ImageMapType({
+                getTileUrl: function(coord, z) {
+                  // Y coordinate is flipped in Mapbox, compared to Google
+                  return "http://a.tile.mapbox.com/1.0.0/" + options.tileset
+                      + "/" +  z
+                      + "/" + coord.x
+                      + "/" + Math.abs(coord.y - (Math.pow(2, z) - 1)) + ".png";
+                },
+                name: options.name,
+                alt: options.name,
+                tileSize: new google.maps.Size(256, 256),
+                isPng: true,
+                minZoom: 0,
+                maxZoom: options.maxZoom || 17
+            });
+        };
 
-        var tilelayers = [new GTileLayer(copyrightCollection,minZoom,maxZoom)];
-        tilelayers[0].getTileUrl = CustomTilesUrl;
-
-        // Default options for the new map type.
-        var GMapTypeOptions = new Object();
-        GMapTypeOptions.minResolution = minZoom;
-        GMapTypeOptions.maxResolution = maxZoom;
+        var map = new google.maps.Map(
+            document.getElementById("map_canvas"), {
+                center: new google.maps.LatLng(0, 0),
+                zoom: 1,
+                mapTypeControlOptions: {
+                    mapTypeIds: ['mapbox']
+                }
+        });
         
-        // Create the custom map type and add it to the map.
-        var custommap = new GMapType(tilelayers, new GMercatorProjection(maxZoom + 1), tilesName, GMapTypeOptions);
-        map.setCenter(new GLatLng(centerLat,centerLon), defaultZoom, custommap);
-        map.addMapType(custommap);
-
-        map.setUIToDefault();
-      }
+        map.mapTypes.set('mapbox', mbLayer({
+            tileset: 'world-light',
+            name: 'World Light'
+        }));
+        map.setMapTypeId('mapbox');
+        mbLogo(map);
     }
 
     </script>
   </head>
-
   <body onload="initialize()" onunload="GUnload()">
     <div id="map_canvas" style="width: 500px; height: 300px"></div>
   </body>
